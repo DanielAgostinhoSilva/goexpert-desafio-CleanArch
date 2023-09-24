@@ -67,6 +67,23 @@ func (suite *MysqlAdapterSuiteTest) Test_deve_listar_todos_os_orders() {
 	suite.Len(orders, 3)
 }
 
+func (suite *MysqlAdapterSuiteTest) Test_deve_fazer_count_dos_orders_no_banco() {
+	repository := mysql.NewOrderRepository(suite.db)
+
+	order1, err := domain.NewOrder("b25635b6-e085-49c3-87fc-71c32fdbb72f", 10.00, 2.00)
+	suite.Nil(err)
+	err = repository.Save(order1)
+	suite.Nil(err)
+	order2, err := domain.NewOrder("7845d2f3-abd5-4c68-a9db-eb71d6622a9a", 10.00, 2.00)
+	suite.Nil(err)
+	err = repository.Save(order2)
+	suite.Nil(err)
+
+	total, err := repository.GetTotal()
+	suite.Nil(err)
+	suite.Equal(int64(2), total)
+}
+
 func Test_MysqlAdapterSuiteTest(t *testing.T) {
 	suite.Run(t, new(MysqlAdapterSuiteTest))
 }
