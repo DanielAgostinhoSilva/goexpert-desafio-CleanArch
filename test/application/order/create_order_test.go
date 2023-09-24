@@ -48,7 +48,17 @@ func (m *MockOrderRepository) Save(entity *domain.Order) error {
 	return args.Error(0)
 }
 
-func (m *MockOrderRepository) FindAll() ([]*domain.Order, error) {
+func (m *MockOrderRepository) FindAll() ([]domain.Order, error) {
 	args := m.Called()
-	return args.Get(0).([]*domain.Order), args.Error(1)
+	return args.Get(0).([]domain.Order), args.Error(1)
+}
+
+func (m *MockOrderRepository) FindById(id string) (*domain.Order, error) {
+	args := m.Called(id)
+	return args.Get(0).(*domain.Order), args.Error(1)
+}
+
+func (m *MockOrderRepository) Delete(id string) error {
+	args := m.Called(id)
+	return args.Error(0)
 }
