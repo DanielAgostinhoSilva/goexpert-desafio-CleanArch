@@ -12,6 +12,8 @@ services:
       MYSQL_PASSWORD: root
     ports:
       - 3306:3306
+    networks:
+      - dev
 
   mysql_test:
     image: mysql:5.7
@@ -24,4 +26,26 @@ services:
       MYSQL_PASSWORD: root
     ports:
       - 3307:3306
+    networks:
+      - dev
 
+  localstack:
+    image: localstack/localstack:1.4
+    ports:
+      - "127.0.0.1:4510-4559:4510-4559"  # external service port range
+      - "127.0.0.1:4566:4566"            # LocalStack Edge Proxy
+    environment:
+      - DEBUG=${DEBUG-}
+      - SERVICES=sns,sqs,s3
+      - DATA_DIR=${DATA_DIR-}
+      - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR-}
+      - HOST_TMP_FOLDER=${TMPDIR:-/tmp/}localstack
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "./localstack:/docker-entrypoint-initaws.d/"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - dev
+
+networks:
+  dev:
