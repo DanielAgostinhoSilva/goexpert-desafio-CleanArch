@@ -2,6 +2,7 @@ package webserver
 
 import (
 	domain "github.com/DanielAgostinhoSilva/goexpert-desafio-CleanArch/src/domain/order"
+	"github.com/DanielAgostinhoSilva/goexpert-desafio-CleanArch/src/infrastructure/webserver/controller"
 	"log"
 	"sync"
 )
@@ -9,8 +10,7 @@ import (
 func Initialize(wg *sync.WaitGroup, repository domain.OrderRepository, port string) {
 	defer wg.Done()
 	webserver := NewWebServer(port)
-	orderHandler := NewOrderHandler(repository)
-	webserver.AddHandler("POST", "/orders", orderHandler.Create)
+	webserver.AddController(controller.NewOrderController(repository))
 	log.Println("Starting web server on port ", port)
 	webserver.Start()
 }
