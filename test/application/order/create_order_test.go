@@ -2,7 +2,7 @@ package application
 
 import (
 	"github.com/DanielAgostinhoSilva/goexpert-desafio-CleanArch/src/application/order"
-	"github.com/DanielAgostinhoSilva/goexpert-desafio-CleanArch/src/domain/order"
+	"github.com/DanielAgostinhoSilva/goexpert-desafio-CleanArch/test/mocks"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"testing"
@@ -10,16 +10,23 @@ import (
 
 type CreateOrderUseCaseSuiteTest struct {
 	suite.Suite
-	OrderRepository *MockOrderRepository
+	OrderRepository *mocks.MockOrderRepository
+	OrderEvent      *mocks.MockEvent
+	EventDispatcher *mocks.MockEventDispatcher
 }
 
 func (suite *CreateOrderUseCaseSuiteTest) SetupTest() {
-	suite.OrderRepository = new(MockOrderRepository)
+	suite.OrderRepository = new(mocks.MockOrderRepository)
+	suite.OrderEvent = new(mocks.MockEvent)
+	suite.EventDispatcher = new(mocks.MockEventDispatcher)
 }
 
 func (suite *CreateOrderUseCaseSuiteTest) Test_deve_executar_um_CreateOrderUseCase() {
 	suite.OrderRepository.On("Save", mock.AnythingOfType("*domain.Order")).Return(nil)
-	createOrderUseCase := application.NewCreateOrderUseCase(suite.OrderRepository)
+	suite.OrderEvent.On("SetPayload", mock.AnythingOfType("application.CreateOrderOutput"))
+	suite.EventDispatcher.On("Dispatch", mock.AnythingOfType("*mocks.MockEvent")).Return(nil)
+
+	createOrderUseCase := application.NewCreateOrderUseCase(suite.OrderRepository, suite.OrderEvent, suite.EventDispatcher)
 
 	createOrderOutput, err := createOrderUseCase.Execute(application.CreateOrderInput{
 		ID:    "123",
@@ -37,28 +44,4 @@ func (suite *CreateOrderUseCaseSuiteTest) Test_deve_executar_um_CreateOrderUseCa
 
 func Test_CreateOrderUseCaseSuiteTest(t *testing.T) {
 	suite.Run(t, new(CreateOrderUseCaseSuiteTest))
-}
-
-type MockOrderRepository struct {
-	mock.Mock
-}
-
-func (m *MockOrderRepository) Save(entity *domain.Order) error {
-	args := m.Called(entity)
-	return args.Error(0)
-}
-
-func (m *MockOrderRepository) FindAll() ([]domain.Order, error) {
-	args := m.Called()
-	return args.Get(0).([]domain.Order), args.Error(1)
-}
-
-func (m *MockOrderRepository) FindById(id string) (*domain.Order, error) {
-	args := m.Called(id)
-	return args.Get(0).(*domain.Order), args.Error(1)
-}
-
-func (m *MockOrderRepository) Delete(id string) error {
-	args := m.Called(id)
-	return args.Error(0)
 }

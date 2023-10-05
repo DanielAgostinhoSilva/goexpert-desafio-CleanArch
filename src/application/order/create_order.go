@@ -1,6 +1,9 @@
 package application
 
-import domain "github.com/DanielAgostinhoSilva/goexpert-desafio-CleanArch/src/domain/order"
+import (
+	"github.com/DanielAgostinhoSilva/goexpert-desafio-CleanArch/src/domain/events"
+	domain "github.com/DanielAgostinhoSilva/goexpert-desafio-CleanArch/src/domain/order"
+)
 
 type CreateOrderInput struct {
 	ID    string
@@ -17,11 +20,19 @@ type CreateOrderOutput struct {
 
 type CreateOrderUseCase struct {
 	OrderRepository domain.OrderRepository
+	OrderCreated    events.Event
+	EventDispatcher events.EventDispatcher
 }
 
-func NewCreateOrderUseCase(orderRepository domain.OrderRepository) *CreateOrderUseCase {
+func NewCreateOrderUseCase(
+	OrderRepository domain.OrderRepository,
+	OrderCreated events.Event,
+	EventDispatcher events.EventDispatcher,
+) *CreateOrderUseCase {
 	return &CreateOrderUseCase{
-		OrderRepository: orderRepository,
+		OrderRepository: OrderRepository,
+		OrderCreated:    OrderCreated,
+		EventDispatcher: EventDispatcher,
 	}
 }
 
@@ -42,6 +53,9 @@ func (props *CreateOrderUseCase) Execute(input CreateOrderInput) (CreateOrderOut
 		Tax:        order.Tax,
 		FinalPrice: order.Price + order.Tax,
 	}
+
+	props.OrderCreated.SetPayload(createOrderOutput)
+	props.EventDispatcher.Dispatch(props.OrderCreated)
 
 	return createOrderOutput, nil
 }

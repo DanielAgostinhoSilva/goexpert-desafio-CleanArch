@@ -11,12 +11,17 @@ import (
 )
 
 type OrderHandler struct {
-	OrderRepository domain.OrderRepository
+	OrderRepository    domain.OrderRepository
+	createOrderUseCase *application.CreateOrderUseCase
 }
 
-func NewOrderController(OrderRepository domain.OrderRepository) *OrderHandler {
+func NewOrderController(
+	OrderRepository domain.OrderRepository,
+	createOrderUseCase *application.CreateOrderUseCase,
+) *OrderHandler {
 	return &OrderHandler{
-		OrderRepository: OrderRepository,
+		OrderRepository:    OrderRepository,
+		createOrderUseCase: createOrderUseCase,
 	}
 }
 
@@ -30,8 +35,7 @@ func (props *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	createOrder := application.NewCreateOrderUseCase(props.OrderRepository)
-	createOrderOutput, err := createOrder.Execute(mapper.OrderInputToCreateOrderInput(orderInput))
+	createOrderOutput, err := props.createOrderUseCase.Execute(mapper.OrderInputToCreateOrderInput(orderInput))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

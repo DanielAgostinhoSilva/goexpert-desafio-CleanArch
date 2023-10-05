@@ -1,17 +1,22 @@
 package handler
 
 import (
-	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/DanielAgostinhoSilva/goexpert-desafio-CleanArch/src/domain/events"
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/sns"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/sns"
 	"log"
+	"os"
 	"sync"
 )
 
 type OrderCreatedHandler struct {
-	client *sns.Client
+	client *sns.SNS
+}
+
+func NewOrderCreatedHandler(client *sns.SNS) *OrderCreatedHandler {
+	return &OrderCreatedHandler{client: client}
 }
 
 func (props *OrderCreatedHandler) Handle(event events.Event, wg *sync.WaitGroup) {
@@ -19,15 +24,15 @@ func (props *OrderCreatedHandler) Handle(event events.Event, wg *sync.WaitGroup)
 	log.Printf("Order created: %v\n", event.GetPayload())
 	jsonOutput, _ := json.Marshal(event.GetPayload())
 
-	input := &sns.PublishInput{
+	result, err := props.client.Publish(&sns.PublishInput{
+		TopicArn: aws.String("arn:aws:sns:us-east-1:000000000000:order-domain-event"), // Substitua pelo ARN correto
 		Message:  aws.String(string(jsonOutput)),
-		TopicArn: aws.String("arn:aws:sns:us-east-1:000000000000:order-domain-event"),
-	}
+	})
 
-	_, err := props.client.Publish(context.Background(), input)
 	if err != nil {
-		log.Println("failed to publish message, " + err.Error())
+		fmt.Println("Erro ao publicar mensagem:", err)
+		os.Exit(1)
 	}
 
-	log.Println("Message published successfully!")
+	log.Println("Message published successfully: ", result.MessageId)
 }
