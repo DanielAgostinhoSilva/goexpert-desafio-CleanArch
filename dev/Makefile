@@ -1,7 +1,4 @@
 STACK_NAME=goexpert-desafio-cleanarch
-#PROTO_GO_PATH=./../src/infrastructure/grpc
-#PROTO_GO_OUT_PATH=./../src/infrastructure/grpc
-#PROTO_PATH=./../src/infrastructure/grpc/protofiles
 PROTO_GO_PATH=./../
 PROTO_GO_OUT_PATH=./../
 PROTO_PATH=./../src/infrastructure/grpc/protofiles
@@ -30,3 +27,6 @@ grpc-generate:
 
 grpc-client:
 	evans -r repl
+
+graph-generate:
+	go run github.com/99designs/gqlgen genarate

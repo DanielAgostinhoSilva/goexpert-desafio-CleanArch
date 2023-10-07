@@ -10,6 +10,7 @@ import (
 	"github.com/DanielAgostinhoSilva/goexpert-desafio-CleanArch/src/infrastructure/env"
 	"github.com/DanielAgostinhoSilva/goexpert-desafio-CleanArch/src/infrastructure/event"
 	"github.com/DanielAgostinhoSilva/goexpert-desafio-CleanArch/src/infrastructure/event/handler"
+	"github.com/DanielAgostinhoSilva/goexpert-desafio-CleanArch/src/infrastructure/graph"
 	"github.com/DanielAgostinhoSilva/goexpert-desafio-CleanArch/src/infrastructure/grpc"
 	"github.com/DanielAgostinhoSilva/goexpert-desafio-CleanArch/src/infrastructure/webserver"
 	"github.com/aws/aws-sdk-go/service/sns"
@@ -39,8 +40,9 @@ func init() {
 
 func main() {
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(3)
 	go webserver.Initialize(&wg, orderRepository, config.WebServerPort, createOrderUseCase)
 	go grpc.Initialize(&wg, config.GRPCServerPort, createOrderUseCase, orderRepository)
+	go graph.Initialize(&wg, config.GraphQLServerPort, createOrderUseCase, orderRepository)
 	wg.Wait()
 }
