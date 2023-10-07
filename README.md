@@ -28,9 +28,10 @@ Não esqueça de criar as migrações necessárias e o arquivo api.http com a re
   - mutation createOrder "cria um order"
   - query orders "busca todos os orders na base de dados"
 
-Agumas tecnonologias foi trocada para propor um desafio paracido com que uso no meu dia a dia.
+### Agumas tecnonologias foi trocada para propor um desafio paracido com que uso no meu dia a dia.
 
-RabbitMQ foi trcado por SNS
+#### RabbitMQ foi trocado por SNS
+#### Os migration script foi trocado pelo [goose](https://github.com/pressly/goose)
 
 
 Este é um layout do projeto foi ajustado conforme a visao do projeto da galera do [Colibri Project](https://colibriproject.io/) que gostei muito da organização
